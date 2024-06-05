@@ -1,0 +1,40 @@
+name:  ci-cd
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  cipipeline:
+    name: ci-pipeline
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+    - shell: bash
+      run:
+        npm ci
+        npm run prettier
+        npm run typecheck
+        npm run test
+        npm run build
+    - uses: actions/upload-pages-artifact@v3
+      with:
+        path: dist
+
+  cdpipeline:
+    name: cd-pipeline
+    runs-on: ubuntu-latest
+    needs: cipipeline
+    permissions:
+        pages: write
+    environment:
+      name: production_environment
+      url: ${{ steps.deployment.outputs.url_output }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+    
