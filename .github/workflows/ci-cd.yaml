@@ -34,8 +34,45 @@ jobs:
     environment:
       name: production_environment
       url: ${{ steps.deployment.outputs.url_output }}
+    outputs:
+      pages-url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Output env url
+        run: echo ${{ env.url }}
     
+  smoke-test:
+    needs: cdpipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    strategy:
+      matrix:
+        browsers: ["firefox", "chromium"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+  
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install ${{ matrix.browser }}
+
+      - name: Run Playwright tests
+        run: npx playwright test --project ${{ matrix.browser }}
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ nddes.cdpipeline.outputs.pages-url }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report/
+          retention-days: 1
