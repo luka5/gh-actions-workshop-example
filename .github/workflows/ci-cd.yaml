@@ -14,7 +14,7 @@ jobs:
         node-version: 20
         cache: 'npm'
     - shell: bash
-      run:
+      run: |
         npm ci
         npm run prettier
         npm run typecheck
