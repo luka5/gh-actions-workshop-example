@@ -49,7 +49,7 @@ jobs:
     timeout-minutes: 3
     strategy:
       matrix:
-        browsers: ["firefox", "chromium"]
+        browser: ["firefox", "chromium"]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
