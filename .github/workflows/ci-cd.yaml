@@ -32,8 +32,8 @@ jobs:
         pages: write
         id-token: write
     environment:
-      name: production_environment
-      url: ${{ steps.deployment.outputs.url_output }}
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     outputs:
       pages-url: ${{ steps.deployment.outputs.page_url }}
     steps:
@@ -68,7 +68,7 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test --project ${{ matrix.browser }}
         env:
-          PLAYWRIGHT_BASE_URL: ${{ needs.cdpipeline.outputs.pages-url }}
+          PLAYWRIGHT_BASE_URL: ${{ needs.cdpipeline.outputs.page_url }}
 
       - uses: actions/upload-artifact@v4
         if: always()
